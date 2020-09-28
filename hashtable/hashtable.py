@@ -21,8 +21,8 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        # Your code here
-
+        self.capacity = MIN_CAPACITY
+        self.table = [None] * self.capacity
 
     def get_num_slots(self):
         """
@@ -34,7 +34,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return len(self.capacity)
 
 
     def get_load_factor(self):
@@ -52,8 +52,14 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
-
-        # Your code here
+        size = 2**64
+        prime = 0x100000001b3
+        FNV1_64_INIT = 0xcbf29ce484222325
+        value = FNV1_64_INIT
+        for byte in key:
+            value = (value * prime) % size
+            value = value^ord(byte)
+        return value
 
 
     def djb2(self, key):
@@ -70,9 +76,9 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
-
+        return self.fnv1(key) % self.capacity
+        # return self.djb2(key) % self.capacity
+        
     def put(self, key, value):
         """
         Store the value with the given key.
@@ -81,9 +87,12 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
-
+        
+        index = self.hash_index(key)
+        
+        self.table[index] = value
+       
+        
     def delete(self, key):
         """
         Remove the value stored with the given key.
@@ -92,7 +101,12 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
+        if self.table[index] is not None:
+            
+            self.table[index] = None
+        else:
+            print("No value found at index")
 
 
     def get(self, key):
@@ -103,7 +117,12 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
+        value = self.table[index]
+        if value is not None:
+            return value
+        else:
+            return None
 
 
     def resize(self, new_capacity):
@@ -113,7 +132,10 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        if new_capacity < MIN_CAPACITY:
+            print("Value below minimum capacity.")
+        else:
+            self.capacity = new_capacity
 
 
 
