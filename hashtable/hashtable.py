@@ -6,7 +6,7 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
-
+        
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -23,6 +23,7 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = MIN_CAPACITY
         self.table = [None] * self.capacity
+        self.load = 0
 
     def get_num_slots(self):
         """
@@ -43,7 +44,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return self.load/self.capacity
 
 
     def fnv1(self, key):
@@ -87,10 +88,22 @@ class HashTable:
 
         Implement this.
         """
+        new_entry = HashTableEntry(key,value)
         
         index = self.hash_index(key)
-        
-        self.table[index] = value
+        if self.table[index] is not None:
+            if self.table[index].key != key:
+                
+                self.table[index].next = new_entry
+            else:
+                return "identical entry"
+            
+        else:
+            self.table[index] = new_entry
+            
+        self.load += 1
+        if self.get_load_factor() >= .7:
+            self.resize((self.capacity*2))
        
         
     def delete(self, key):
@@ -102,11 +115,27 @@ class HashTable:
         Implement this.
         """
         index = self.hash_index(key)
-        if self.table[index] is not None:
-            
+        if self.table[index].key == key:
+            self.load -= 1
             self.table[index] = None
+        elif self.table[index] is None:
+        
+            return"No value found at key"
         else:
-            print("No value found at index")
+            prev_node = self.table[index]
+            cur_node = self.table[index].next
+            while cur_node is not None:
+                
+                if cur_node.key == key:
+                    prev_node.next = cur_node.next
+                    self.load -= 1
+                    return "deleted"
+                else:
+                    prev_node = cur_node
+                    cur_node = cur_node.next
+            
+            return "No value found at key"
+        
 
 
     def get(self, key):
@@ -118,9 +147,17 @@ class HashTable:
         Implement this.
         """
         index = self.hash_index(key)
-        value = self.table[index]
-        if value is not None:
-            return value
+        if self.table[index].key == key:
+            return self.table[index].value
+        elif self.table[index] is not None:
+            cur_node = self.table[index]
+            while cur_node.next is not None:
+                next_node = cur_node.next
+                if next_node.key == key:
+                    return next_node.value
+                else:
+                    cur_node = next_node
+            return None
         else:
             return None
 
