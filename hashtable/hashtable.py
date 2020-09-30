@@ -20,8 +20,8 @@ class HashTable:
     Implement this.
     """
 
-    def __init__(self, capacity):
-        self.capacity = MIN_CAPACITY
+    def __init__(self, capacity = MIN_CAPACITY):
+        self.capacity = capacity
         self.table = [None] * self.capacity
         self.load = 0
 
@@ -92,11 +92,19 @@ class HashTable:
         
         index = self.hash_index(key)
         if self.table[index] is not None:
-            if self.table[index].key != key:
+            if self.table[index].key == key:
                 
-                self.table[index].next = new_entry
+                self.table[index].value = value
             else:
-                return "identical entry"
+                cur_node = self.table[index]
+                while cur_node.next is not None:
+                    if cur_node.key == key:
+                        cur_node.value = value
+                    cur_node = cur_node.next
+                if cur_node.key == key:
+                    cur_node.value = value
+                else:
+                    cur_node.next = new_entry
             
         else:
             self.table[index] = new_entry
@@ -115,12 +123,17 @@ class HashTable:
         Implement this.
         """
         index = self.hash_index(key)
-        if self.table[index].key == key:
-            self.load -= 1
-            self.table[index] = None
-        elif self.table[index] is None:
+        if self.table[index] is None:
         
-            return"No value found at key"
+            return None
+        elif self.table[index].key == key:
+            self.load -= 1
+            if self.table[index].next is not None:
+                self.table[index] = self.table[index].next
+            else:
+                self.table[index] = None
+
+        
         else:
             prev_node = self.table[index]
             cur_node = self.table[index].next
@@ -147,7 +160,9 @@ class HashTable:
         Implement this.
         """
         index = self.hash_index(key)
-        if self.table[index].key == key:
+        if self.table[index] is None:
+            return None
+        elif self.table[index].key == key:
             return self.table[index].value
         elif self.table[index] is not None:
             cur_node = self.table[index]
@@ -158,9 +173,7 @@ class HashTable:
                 else:
                     cur_node = next_node
             return None
-        else:
-            return None
-
+        
 
     def resize(self, new_capacity):
         """
@@ -169,10 +182,12 @@ class HashTable:
 
         Implement this.
         """
-        if new_capacity < MIN_CAPACITY:
-            print("Value below minimum capacity.")
-        else:
-            self.capacity = new_capacity
+        old_table = self.table
+        self.capacity = new_capacity
+        self.table = [None] * self.capacity
+        for node in old_table:
+            if node is not None:
+                self.put(node.key, node.value)
 
 
 
