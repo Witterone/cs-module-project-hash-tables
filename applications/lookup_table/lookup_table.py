@@ -14,14 +14,14 @@ def slowfun_too_slow(x, y):
 
 
 factors = {}
-for x in range(2,15):
-    for y in range(3,7):
-        v = math.pow(x, y)
-        num = math.factorial(v)
-        num //=(x+y)
-        num %= 982451653
+# for x in range(2,15):
+#     for y in range(3,7):
+#         v = math.pow(x, y)
+#         num = math.factorial(v)
+#         num //=(x+y)
+#         num %= 982451653
         
-        factors[(x,y)] = num
+#         factors[(x,y)] = num
         
         
         
@@ -35,9 +35,11 @@ def slowfun(x, y):
     Rewrite slowfun_too_slow() in here so that the program produces the same
     output, but completes quickly instead of taking ages to run.
     """
-    
-    value = factors[(x,y)]
-    
+    if (x,y) in factors:
+        value = factors[(x,y)]
+    else: 
+        value = slowfun_too_slow(x, y)
+        factors[(x,y)] = value
     return value
     
 
